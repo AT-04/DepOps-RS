@@ -9,6 +9,7 @@ This virtual machine is for continuous integration. For the elaboration of this 
  + Install vagrant-openstack-provider plugin
  + Install vagrant-docker-compose plugin
  + Install vagrant-env plugin
+
 **Steps**
  + 1. Install Vagrant
  + 2. Install Vagrant-openstack-provider plugin
