@@ -9,5 +9,5 @@ This API is about a store and has two end points products and clients. For the e
  + Install NodeJS.
  + Install npm.
  + Install Express.
- + Install mongoose
-s
+ + Install mongoose.
+ 
