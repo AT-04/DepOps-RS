@@ -4,18 +4,11 @@ const Product =require('../models/products')
 
 function deleteProduct(request, response) {
 	let productId = request.params.productId
-	Product.findBbyID(productId, (err, productStored) => {
+	Product.findByIdAndRemove(productId, (err, productStored) => {
 			if(err){
 			return response.status(500).send({message: `error to performs request to mongoDB: ${err}`})
-			productStored.remove(err =>{
-				if(err){
-			     return response.status(500).send({message: `error to performs delete: ${err}`})
-				 }
-				 response.status(200).send({message: 'the product was delete'})
-			})
-		}
-	   
-
+			}
+		   response.status(200).send({message: 'the product was delete'})
 	})
 }
 

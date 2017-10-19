@@ -7,7 +7,7 @@ function getClients(request, response) {
 		if(err){
 			return response.status(500).send({message: `error to performs request to mongoDB: ${err}`})
 		}
-		if(!productStored) {
+		if(!clientStored) {
 			return response.status(404).send({message: 'clients does not exist'})
 		}
 		response.status(200).send({clientStored})

@@ -4,17 +4,11 @@ const Client =require('../models/clients')
 
 function deleteClient(request, response) {
 	let clientId = request.params.clientId
-	Client.findBbyID(clientId, (err, productStored) => {
+	Client.findByIdAndRemove(clientId, (err, productStored) => {
 			if(err){
 			return response.status(500).send({message: `error to performs request to mongoDB: ${err}`})
-			productStored.remove(err =>{
-				if(err){
-			     return response.status(500).send({message: `error to performs delete: ${err}`})
-				 }
-				 response.status(200).send({message: 'the client was delete'})
-			})
-		}
-
+			}
+		  response.status(200).send({message: 'the client was delete'})
 	})
 }
 

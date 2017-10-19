@@ -10,7 +10,7 @@ function updateClient(request, response) {
 		if(err) { 
 			return response.status(500).send({message: `error to performs update to mongoDB: ${err}`}) 
 		}
-		response.status(200).send({client: clientUpdate})
+		response.status(200).send({client: body_update})
 	})
 }
 
