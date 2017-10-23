@@ -5,7 +5,7 @@ Vagrant.configure('2') do |config|
   #Enable vagrant-env plugin
   config.env.enable
   config.ssh.username = 'ubuntu'  
-  config.ssh.private_key_path = "./keypairrichardseverich.pem"
+  config.ssh.private_key_path = "./keypair.pem"
 
   config.vm.provider :openstack do |os, override|
     os.identity_api_version = ENV['OS_IDENTITY_API_VERSION']
