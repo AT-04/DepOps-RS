@@ -12,11 +12,20 @@ pipeline {
             steps {
                 echo 'Testing..'
                 sh './gradlew clean check'
+                // publish html
+    			  publishHTML target: [
+      					allowMissing: false,
+     					alwaysLinkToLastBuild: false,
+      					keepAll: true,
+      					reportDir: 'build/reports/tests/test',
+        				reportFiles: 'index.html',
+        				reportName: "Unit Test Reports"
+    				]
             }
         }
         stage('Package') {
             steps {
-                sh './gradlew clean shadowJar'
+                sh './gradlew shadowJar'
             }
         }
         stage('Deploy') {
