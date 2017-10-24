@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+                git 'https://github.com/RichardSeverich/tz-rest-api'
+                sh './gradlew clean assemble'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+                sh './gradlew clean check'
+            }
+        }
+        stage('Package') {
+            steps {
+                sh './gradlew shadowJar'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}

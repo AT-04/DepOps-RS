@@ -21,6 +21,14 @@ services:
     ports:
       - "8080:8080"
       - "50000:50000"
+      
+  sonarqube:
+    image: "sonarqube:5.6.6-alpine"
+    ports:
+      - "9000:9000"
+      - "9092:9092"
+    links:
+      - gocd_agent
 
 networks:
   default:
