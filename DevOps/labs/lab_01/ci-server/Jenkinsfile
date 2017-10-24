@@ -5,7 +5,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building..'
-                git 'https://github.com/RichardSeverich/tz-rest-api'
                 sh './gradlew clean assemble'
             }
         }
@@ -17,7 +16,7 @@ pipeline {
         }
         stage('Package') {
             steps {
-                sh './gradlew shadowJar'
+                sh './gradlew clean shadowJar'
             }
         }
         stage('Deploy') {
