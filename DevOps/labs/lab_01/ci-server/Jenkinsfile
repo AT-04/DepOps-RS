@@ -21,12 +21,14 @@ pipeline {
         				reportFiles: 'index.html',
         				reportName: "Unit Test Reports"
     				]
+                junit 'build/test-result/test/*'
             }
         }
         stage('Package') {
             steps {
                 sh './gradlew shadowJar'
                 archiveArtifacts 'build/libs/*.jar'
+                archiveArtifacts 'example.yml'
             }
         }
         stage('Deploy') {
