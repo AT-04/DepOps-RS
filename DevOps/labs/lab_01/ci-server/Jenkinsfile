@@ -12,21 +12,23 @@ pipeline {
             steps {
                 echo 'Testing..'
                 sh './gradlew clean check'
-                // publish html
-    			  publishHTML target: [
-      					allowMissing: false,
-     					alwaysLinkToLastBuild: false,
-      					keepAll: true,
-      					reportDir: 'build/reports/tests/test',
-        				reportFiles: 'index.html',
-        				reportName: "Unit Test Reports"
-    				]
-                junit 'build/test-result/test/*'
+                //publish html
+                publishHTML target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'build/reports/tests/test',
+                        reportFiles: 'index.html',
+                        reportName: "Unit Test Reports"
+                    ]
+                //store test results in test.
+                junit 'build/test-results/test/*'
             }
         }
         stage('Package') {
             steps {
                 sh './gradlew shadowJar'
+                //store artifacts in artifacts.
                 archiveArtifacts 'build/libs/*.jar'
                 archiveArtifacts 'example.yml'
             }
