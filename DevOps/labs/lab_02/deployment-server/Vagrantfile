@@ -20,18 +20,25 @@ Vagrant.configure('2') do |config|
     os.image              = ENV['OS_IMAGE']
   end
 
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    curl -sL https://deb.nodesource.com/setup_7.x | bash -
-    apt-get install -y nodejs
-    apt-get install -y default-jdk
-  SHELL
-
-    s.vm.provision "docker_compose" 
-    s.vm.provider :openstack do |os, override|
-      os.server_name = ENV['OS_SERVER_NAME']
-      os.flavor = ENV['OS_FLAVOR']
-      override.vm.synced_folder '.', '/vagrant', disabled: true
-    end
+  config.vm.define ENV['BOX_NAME'] do |s|
+      
+      s.vm.provider :openstack do |os, override|
+        os.server_name = ENV['OS_SERVER_NAME']
+        os.flavor = ENV['OS_FLAVOR']
+        override.vm.synced_folder '.', '/vagrant', disabled: true
+      end
+      
+      config.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        curl -sL https://deb.nodesource.com/setup_7.x | bash -
+        apt-get install -y nodejs
+        apt-get install -y default-jdk
+      SHELL
   end
 end
+ 
+
+
+
+  
+
