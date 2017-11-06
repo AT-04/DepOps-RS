@@ -1,3 +1,4 @@
+
 version: '3'
 services:
   gocd_server:
@@ -6,10 +7,10 @@ services:
       - "8153:8153"
       - "8154:8154"
     links:
-      - gocd_agent
+      - gocd_agent_ubuntu
 
-  gocd_agent:
-    image: "gocd/gocd-agent-alpine-3.5:v17.3.0"
+  gocd_agent_ubuntu:
+    image: "gocd/gocd-agent-ubuntu-16.04:v17.11.0"
     environment:
       - GO_SERVER_URL=https://gocd_server:8154/go
     volumes:
@@ -17,22 +18,16 @@ services:
       - ./go:/home/go
 
   jenkins_server:
-    image: "jenkinsci/blueocean"
+    image: "jenkins"
     ports:
       - "8080:8080"
       - "50000:50000"
-      
+
   sonarqube:
     image: "sonarqube:5.6.6-alpine"
     ports:
       - "9000:9000"
       - "9092:9092"
     links:
-      - gocd_agent
+      - gocd_agent_ubuntu
       - jenkins_server
-
-networks:
-  default:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1450
