@@ -27,18 +27,20 @@ Vagrant.configure('2') do |config|
         os.flavor = ENV['OS_FLAVOR']
         override.vm.synced_folder '.', '/vagrant', disabled: true
       end
-      
+      s.vm.provision "docker" do | docker |
+        docker.pull_images "mongo:3.0.15-wheezy"
+        docker.pull_images "cassandra:3.0.15"
+      end
+      s.vm.provision "docker_compose"
       config.vm.provision "shell", inline: <<-SHELL
         apt-get update
         curl -sL https://deb.nodesource.com/setup_7.x | bash -
         apt-get install -y nodejs
         apt-get install -y default-jdk
+        apt-add-repository -y ppa:brightbox/ruby-ng
+        apt-get update
+        sudo apt-get install -y ruby2.4 ruby2.4-dev
       SHELL
   end
 end
  
-
-
-
-  
-
