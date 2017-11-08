@@ -7,7 +7,7 @@
         <variable name="PORT_TO_SERVE">
           <value>3001</value>
         </variable>
-        <variable name="ENVIRONMENT">
+        <variable name="ENVIRONMENT_TEST">
           <value>testing</value>
         </variable>
         <variable name="CORS">
@@ -23,10 +23,10 @@
           <value>ixplora</value>
         </variable>
         <variable name="STG_MONGO_PASSWORD">
-          <value>secretixplora</value>
+          <value>ixplora23</value>
         </variable>
         <variable name="STG_DB_HOST_IP">
-          <value>localhost</value>
+          <value>10.28.130.59</value>
         </variable>
         <variable name="STG_MONGO_PORT">
           <value>27017</value>
@@ -38,10 +38,10 @@
           <value>ixplora</value>
         </variable>
         <variable name="STG_CASSANDRA_PASSWORD">
-          <value>secretixplora</value>
+          <value>ixplora23</value>
         </variable>
         <variable name="STG_CASSANDRA_IP">
-          <value>localhost</value>
+          <value>10.28.130.59</value>
         </variable>
         <variable name="STG_CASSANDRA_PORT">
           <value>9042</value>
@@ -53,23 +53,29 @@
           <value>smtp.gmail.com</value>
         </variable>
         <variable name="STG_EMAIL">
-          <value>ixploracbba@gmail.com</value>
+          <value>at04.ixplora@gmail.com</value>
         </variable>
         <variable name="STG_EMAIL_PASSWORD">
-          <value>ixplora@gmail.com</value>
-        </variable>
-        <variable name="STG_CQRS_HOST">
-          <value>localhost</value>
+          <value>secretixplora</value>
         </variable>
         <variable name="CQRS_ENABLE">
-          <value>true</value>
+          <value>false</value>
         </variable>
         <variable name="CQRS_NUMBER_WORKERS">
           <value>1</value>
         </variable>
+        <variable name="CQRS_SERVICE_HOST">
+          <value>localhost</value>
+        </variable>
+        <variable name="ENVIRONMENT_PRO">
+          <value>production</value>
+        </variable>
+        <variable name="MOBILE_APP_URL">
+          <value>127.0.0.1:3002</value>
+        </variable>
       </environmentvariables>
       <materials>
-        <git url="git@10.28.128.22:richard.severich/be-service-surveys.git" branch="feature/continuous-integration" />
+        <git url="git@10.28.128.22:richard.severich/be-service-surveys.git" />
       </materials>
       <stage name="Build" artifactCleanupProhibited="true" cleanWorkingDir="true">
         <jobs>
@@ -94,26 +100,46 @@ npm run build-ubuntu</value>
           </job>
         </jobs>
       </stage>
-      <stage name="Test">
+      <stage name="UnitTests" cleanWorkingDir="true">
         <jobs>
-          <job name="create-env-file">
-            <tasks>
-              <exec command="cp">
-                <arg>.env.example</arg>
-                <arg>.env</arg>
-                <runif status="passed" />
-              </exec>
-            </tasks>
-          </job>
-          <job name="set-env-variables">
+          <job name="UnitTests">
             <tasks>
               <task>
                 <pluginConfiguration id="script-executor" version="1" />
                 <configuration>
                   <property>
                     <key>script</key>
+                    <value>npm install&#xD;
+npm run build-ubuntu</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>cp .env.example .env</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
                     <value>sed -i "s/{PORT}/$PORT_TO_SERVE/g" .env&#xD;
-sed -i "s/{ENVIRONMENT}/$ENVIRONMENT/g" .env&#xD;
+sed -i "s/{ENVIRONMENT}/$ENVIRONMENT_TEST/g" .env&#xD;
 sed -i "s/{CORS}/$CORS/g" .env&#xD;
 sed -i "s/{LOG_LEVEL}/$LOG_LEVEL/g" .env&#xD;
 sed -i "s/{LOGS}/$LOGS" .env&#xD;
@@ -126,52 +152,66 @@ NODE_ENV=test</value>
                 </configuration>
                 <runif status="passed" />
               </task>
-            </tasks>
-          </job>
-          <job name="run-test">
-            <tasks>
               <exec command="npm">
+                <arg>run</arg>
                 <arg>test</arg>
-                <runif status="failed" />
                 <runif status="passed" />
               </exec>
-            </tasks>
-            <tabs>
-              <tab name="reports" path="reports/" />
-            </tabs>
-            <artifacts>
-              <artifact src="report.html" dest="reports/" />
-            </artifacts>
-          </job>
-          <job name="coverage">
-            <tasks>
               <exec command="npm">
                 <arg>run</arg>
                 <arg>coverage</arg>
-                <runif status="failed" />
                 <runif status="passed" />
               </exec>
             </tasks>
             <tabs>
-              <tab name="report-coverag" path="reports/coverage/index.html" />
+              <tab name="UnitTestReport" path="reports/UnitTest/report.html" />
+              <tab name="CoverageReport" path="reports/Coverage/index.html" />
             </tabs>
             <artifacts>
-              <artifact src="coverage/*" dest="reports/coverage" />
+              <artifact src="report.html" dest="reports/UnitTest" />
+              <artifact src="coverage/*" dest="reports/Coverage" />
             </artifacts>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="CodeQuality">
+        <jobs>
+          <job name="Lint">
+            <tasks>
+              <exec command="npm">
+                <arg>run</arg>
+                <arg>lint</arg>
+              </exec>
+            </tasks>
           </job>
         </jobs>
       </stage>
       <stage name="Package">
         <jobs>
-          <job name="set-env-variables">
+          <job name="Package">
             <tasks>
               <task>
                 <pluginConfiguration id="script-executor" version="1" />
                 <configuration>
                   <property>
                     <key>script</key>
+                    <value>rm .env&#xD;
+cp .env.example .env</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
                     <value>sed -i "s/{PORT}/$PORT_TO_SERVE/g" .env&#xD;
-sed -i "s/{ENVIRONMENT}/$ENVIRONMENT/g" .env&#xD;
+sed -i "s/{ENVIRONMENT}/$ENVIRONMENT_PRO/g" .env&#xD;
 sed -i "s/{CORS}/$CORS/g" .env&#xD;
 sed -i "s/{LOG_LEVEL}/$LOG_LEVEL/g" .env&#xD;
 sed -i "s/{LOGS}/$LOGS" .env&#xD;
@@ -191,7 +231,9 @@ sed -i "s/{EMAIL_PASSWORD}/$STG_EMAIL_PASSWORD/g" .env&#xD;
 sed -i "s/{MOBILE_APP_URL}/$STG_MOBILE_APP_URL/g" .env&#xD;
 sed -i "s/{CQRS_HOST}/$STG_CQRS_HOST/g" .env&#xD;
 sed -i "s/{CQRS_ENABLE}/$CQRS_ENABLE/g" .env&#xD;
-sed -i "s/{CQRS_NUMBER_WORKERS}/$CQRS_NUMBER_WORKERS/g" .env</value>
+sed -i "s/{CQRS_NUMBER_WORKERS}/$CQRS_NUMBER_WORKERS/g" .env&#xD;
+sed -i "s/{CQRS_SERVICE_HOST}/$CQRS_SERVICE_HOST/g" .env&#xD;
+sed -i "s/{MOBILE_APP_URL}/$MOBILE_APP_URL/g" .env</value>
                   </property>
                   <property>
                     <key>shtype</key>
@@ -200,10 +242,6 @@ sed -i "s/{CQRS_NUMBER_WORKERS}/$CQRS_NUMBER_WORKERS/g" .env</value>
                 </configuration>
                 <runif status="passed" />
               </task>
-            </tasks>
-          </job>
-          <job name="copy-env-files">
-            <tasks>
               <task>
                 <pluginConfiguration id="script-executor" version="1" />
                 <configuration>
@@ -223,10 +261,6 @@ cp .env build/</value>
                 </configuration>
                 <runif status="passed" />
               </task>
-            </tasks>
-          </job>
-          <job name="compress">
-            <tasks>
               <task>
                 <pluginConfiguration id="script-executor" version="1" />
                 <configuration>
@@ -241,10 +275,109 @@ cp .env build/</value>
                 </configuration>
                 <runif status="passed" />
               </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>echo VERIFY .ENV FILE&#xD;
+cat .env</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
             </tasks>
             <artifacts>
               <artifact src="ixplora.tar.gz" dest="distribution/" />
             </artifacts>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="ixplora-api-deploy">
+      <environmentvariables>
+        <variable name="DEPLOY_SERVER_HOST">
+          <value>10.28.130.59</value>
+        </variable>
+        <variable name="DEPLOY_SERVER_USER">
+          <value>ubuntu</value>
+        </variable>
+      </environmentvariables>
+      <materials>
+        <pipeline pipelineName="ixplora-api-ci" stageName="Package" />
+      </materials>
+      <stage name="deploy" cleanWorkingDir="true">
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <fetchartifact pipeline="ixplora-api-ci" stage="Package" job="Package" srcdir="distribution/">
+                <runif status="passed" />
+              </fetchartifact>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>echo CLEAN DEPLOY-SERVER&#xD;
+ssh $DEPLOY_SERVER_USER@$DEPLOY_SERVER_HOST forever stopall&#xD;
+ssh $DEPLOY_SERVER_USER@$DEPLOY_SERVER_HOST 'bash -s' &lt;&lt; 'ENDSSH'&#xD;
+if [ -d "build" ]; &#xD;
+then &#xD;
+rm -r build;&#xD;
+fi&#xD;
+ENDSSH&#xD;
+&#xD;
+ssh $DEPLOY_SERVER_USER@$DEPLOY_SERVER_HOST 'bash -s' &lt;&lt; 'ENDSSH'&#xD;
+if [ -f "ixplora.tar.gz" ]; &#xD;
+then &#xD;
+rm -r ixplora.tar.gz;&#xD;
+fi&#xD;
+ENDSSH</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>echo ENTER DISTRIBUTION FOLDER&#xD;
+cd distribution&#xD;
+echo COPY ARTIFACT TO DEPLOY SERVER&#xD;
+scp ixplora.tar.gz $DEPLOY_SERVER_USER@$DEPLOY_SERVER_HOST:&#xD;
+echo DESCOMPRESS&#xD;
+ssh $DEPLOY_SERVER_USER@$DEPLOY_SERVER_HOST tar xvzf ixplora.tar.gz&#xD;
+&#xD;
+ssh $DEPLOY_SERVER_USER@$DEPLOY_SERVER_HOST 'bash -s' &lt;&lt; 'ENDSSH'&#xD;
+echo ENTER BUILD FOLDER&#xD;
+cd build&#xD;
+echo VERIFY .ENV FILE&#xD;
+cat .env&#xD;
+echo INSTALL DEPENCENCIES&#xD;
+npm install --production&#xD;
+echo START APPLICATION&#xD;
+sudo forever start Server.js&#xD;
+echo FOREVER LIST&#xD;
+forever list&#xD;
+ENDSSH</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+            </tasks>
           </job>
         </jobs>
       </stage>
