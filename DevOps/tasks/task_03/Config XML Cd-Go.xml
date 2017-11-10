@@ -73,6 +73,9 @@
         <variable name="MOBILE_APP_URL">
           <value>127.0.0.1:3002</value>
         </variable>
+        <variable name="ENVIRONMENT_STA">
+          <value>staging</value>
+        </variable>
       </environmentvariables>
       <materials>
         <git url="git@10.28.128.22:richard.severich/be-service-surveys.git" />
@@ -211,7 +214,7 @@ cp .env.example .env</value>
                   <property>
                     <key>script</key>
                     <value>sed -i "s/{PORT}/$PORT_TO_SERVE/g" .env&#xD;
-sed -i "s/{ENVIRONMENT}/$ENVIRONMENT_PRO/g" .env&#xD;
+sed -i "s/{ENVIRONMENT}/$ENVIRONMENT_STA/g" .env&#xD;
 sed -i "s/{CORS}/$CORS/g" .env&#xD;
 sed -i "s/{LOG_LEVEL}/$LOG_LEVEL/g" .env&#xD;
 sed -i "s/{LOGS}/$LOGS" .env&#xD;
@@ -378,6 +381,123 @@ ENDSSH</value>
                 <runif status="passed" />
               </task>
             </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="ixplora-api-acceptance">
+      <materials>
+        <git url="https://github.com/AT-04/ixplora-api-tests/" branch="develop" />
+        <pipeline pipelineName="ixplora-api-deploy" stageName="deploy" />
+      </materials>
+      <stage name="api-acceptance" cleanWorkingDir="true">
+        <jobs>
+          <job name="acceptance">
+            <environmentvariables>
+              <variable name="server_host">
+                <value>10.28.130.59</value>
+              </variable>
+              <variable name="server_port">
+                <value>3001</value>
+              </variable>
+              <variable name="mongo_host">
+                <value>10.28.130.59</value>
+              </variable>
+              <variable name="mongo_port">
+                <value>27017</value>
+              </variable>
+              <variable name="mongo_username">
+                <value>ixplora</value>
+              </variable>
+              <variable name="mongo_password">
+                <value>ixplora23</value>
+              </variable>
+              <variable name="mongo_db_name">
+                <value>ixplora</value>
+              </variable>
+              <variable name="cassandra_host">
+                <value>10.28.130.59</value>
+              </variable>
+              <variable name="cassandra_port">
+                <value>9042</value>
+              </variable>
+              <variable name="cassandra_username">
+                <value>ixplora</value>
+              </variable>
+              <variable name="cassandra_password">
+                <value>ixplora23</value>
+              </variable>
+              <variable name="cassandra_keyspace">
+                <value>ixplora</value>
+              </variable>
+            </environmentvariables>
+            <tasks>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>echo SET ENV VARIABLES&#xD;
+sed -i "s/{server_host}/$server_host/g" features/support/env.yml&#xD;
+sed -i "s/{server_port}/$server_port/g" features/support/env.yml&#xD;
+&#xD;
+sed -i "s/{mongo_host}/$mongo_host/g" features/support/env.yml&#xD;
+sed -i "s/{mongo_port}/$mongo_port/g" features/support/env.yml&#xD;
+sed -i "s/{mongo_username}/$mongo_username/g" features/support/env.yml&#xD;
+sed -i "s/{mongo_password}/$mongo_password/g" features/support/env.yml&#xD;
+sed -i "s/{mongo_db_name}/$mongo_db_name/g" features/support/env.yml&#xD;
+&#xD;
+sed -i "s/{cassandra_host}/$cassandra_host/g" features/support/env.yml&#xD;
+sed -i "s/{cassandra_port}/$cassandra_port/g" features/support/env.yml&#xD;
+sed -i "s/{cassandra_username}/$cassandra_username/g" features/support/env.yml&#xD;
+sed -i "s/{cassandra_password}/$cassandra_password/g" features/support/env.yml&#xD;
+sed -i "s/{cassandra_keyspace}/$cassandra_keyspace/g" features/support/env.yml&#xD;
+&#xD;
+cat  features/support/env.yml</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>bundle install --path vendor/bundle</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+              <task>
+                <pluginConfiguration id="script-executor" version="1" />
+                <configuration>
+                  <property>
+                    <key>script</key>
+                    <value>bundler exec rake json_report['smoke']&#xD;
+bundler exec rake html_report['smoke']</value>
+                  </property>
+                  <property>
+                    <key>shtype</key>
+                    <value>bash</value>
+                  </property>
+                </configuration>
+                <runif status="passed" />
+              </task>
+            </tasks>
+            <tabs>
+              <tab name="SmokeReports" path="reports/smoke/report_smoke.html" />
+            </tabs>
+            <artifacts>
+              <artifact src="features/reports/smoke/report_smoke.html" dest="reports/smoke/" />
+            </artifacts>
           </job>
         </jobs>
       </stage>
